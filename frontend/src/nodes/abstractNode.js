@@ -7,10 +7,11 @@ export default function AbstractNode({
   description,
   inputs = [],
   outputs = [],
+  containerStyle = {},
   children,
 }) {
   return (
-    <div className="rounded-2xl shadow-md bg-white border border-gray-300 w-[220px] p-2">
+    <div className="rounded-2xl shadow-md bg-white border border-gray-300 w-[220px] p-2" style={containerStyle}>
       <div className="font-semibold text-gray-800">{title}</div>
       {description && <div className="text-xs text-gray-500">{description}</div>}
 

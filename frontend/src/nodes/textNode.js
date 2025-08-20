@@ -1,10 +1,12 @@
-import { useMemo, useRef, useLayoutEffect } from "react";
+import { useMemo, useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useStore } from "../store";
 import AbstractNode from "./abstractNode";
 
 export const TextNode = ({ id, data }) => {
   const textareaRef = useRef(null);
   const updateNodeField = useStore((state) => state.updateNodeField);
+  const [containerWidth, setContainerWidth] = useState(220);
+  const [textareaWidth, setTextareawWidth] = useState(220);
 
   // Extract variable names inside {{ }}
   const variables = useMemo(() => {
@@ -23,6 +25,34 @@ export const TextNode = ({ id, data }) => {
     }
   }, [data.text]);
 
+  // Auto-resize width based on longest line
+useEffect(() => {
+  const text = data.text || "";
+  const lines = text.split("\n");
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (context) {
+    const style = window.getComputedStyle(textareaRef.current || document.body);
+    const font = `$(style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    context.font = font;
+    const paddingX = 16; // p-2~0.5rem each side in Tailwind
+    const scrollbarAllowance = 20;
+    let maxLineWidth = 0;
+    for (const line of lines) {
+      const metrics = context.measureText (line || " ");
+      maxLineWidth = Math.max(maxLineWidth, metrics.width);
+    }
+
+    const desiredwidth = Math.ceil(maxLineWidth) + paddingX * 2 + scrollbarAllowance;
+    const min = 120;
+    const max = 400;
+    const clamped = Math.max(min, Math.min(desiredwidth, max));
+    setTextareawWidth(clamped);
+    // container a bit wider to fit padding and handles comfortably
+    setContainerWidth (Math.max(220, clamped + 20));
+  }
+}, [data.text] );
+
   const handleChange = (e) => {
     updateNodeField(id, "text", e.target.value);
   };
@@ -34,6 +64,7 @@ export const TextNode = ({ id, data }) => {
       description="Write text with {{variables}}"
       inputs={variables}
       outputs={["text"]}
+      containerWidth={containerWidth}
     >
       <textarea
         ref={textareaRef}
@@ -41,7 +72,7 @@ export const TextNode = ({ id, data }) => {
         onChange={handleChange}
         className="border rounded-md p-2 text-sm"
         style={{
-          width: 220,
+          width: textareaWidth,
           minWidth: 120,
           maxWidth: 400,
           minHeight: 60,
