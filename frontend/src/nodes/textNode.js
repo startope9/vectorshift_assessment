@@ -33,7 +33,7 @@ useEffect(() => {
   const context = canvas.getContext("2d");
   if (context) {
     const style = window.getComputedStyle(textareaRef.current || document.body);
-    const font = `$(style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
     context.font = font;
     const paddingX = 16; // p-2~0.5rem each side in Tailwind
     const scrollbarAllowance = 20;
@@ -64,7 +64,7 @@ useEffect(() => {
       description="Write text with {{variables}}"
       inputs={variables}
       outputs={["text"]}
-      containerWidth={containerWidth}
+      containerStyle={{ width: containerWidth }}
     >
       <textarea
         ref={textareaRef}
